@@ -1,0 +1,47 @@
+---
+title: "Thingamajig"
+author: "BT_Raptor"
+date: "21/04/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+require(data.table)
+all_data=fread("C:/Users/ricke/Desktop/Raptor's Data Science/opp.csv")
+```
+
+Quick observation of the data
+```{r}
+options(scipen=999)
+all_data=na.omit(all_data)
+all_data=all_data[,`:=`(case=NULL,site=NULL,Pop=NULL,sex=NULL)]
+head(all_data)
+```
+
+Creating a new dataframe, where we do the column tweaking
+```{r}
+temp_df=copy(all_data)
+temp_df[,`:=`(hdlngth_2=hdlngth**2,skullw_2=skullw**2,totlngth_2=totlngth**2,
+               taill_2=taill**2,footlgth_2=footlgth**2,earconch_2=earconch**2,eye_2=eye**2,
+               chest_2=chest**2,belly_2=belly**2)]
+```
+
+Perform and record the results of normal regression
+```{r}
+model=lm(age~.,data=all_data)
+preds=predict(model,all_data)
+all_data$preds=round(preds)
+```
+
+Perform and record the results of quadratic regression
+```{r}
+model=lm(age~.,data=temp_df)
+preds=predict(model,temp_df)
+all_data$new_preds=round(preds)
+all_data=all_data[,c('age','preds','new_preds')]
+head(all_data,15)
+```
